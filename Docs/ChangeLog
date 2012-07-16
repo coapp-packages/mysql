@@ -1,0 +1,65 @@
+------------------------------------------------------------
+revno: 3823
+committer: Joerg Bruehe <joerg.bruehe@oracle.com>
+branch nick: showstop-5.5
+timestamp: Mon 2012-07-02 13:09:33 +0200
+message:
+  Added some extra optional path to test suites.
+------------------------------------------------------------
+revno: 3822
+committer: Bjorn Munch <bjorn.munch@oracle.com>
+branch nick: 5525a
+timestamp: Fri 2012-06-29 14:19:31 +0200
+message:
+  Fix mysql_plugin test to handle version XXa
+------------------------------------------------------------
+revno: 3821
+committer: Joerg Bruehe <joerg.bruehe@oracle.com>
+branch nick: showstop-5.5
+timestamp: Thu 2012-06-28 20:03:53 +0200
+message:
+  Bug#65745: UPDATE ON INNODB TABLE ENTERS RECURSION
+  
+  Introduction of cost based decision on filesort vs index for UPDATE
+  statements changed detection of the fact that the index used to scan the
+  table is being updated. The new design missed the case of index merge
+  when there is no single index to check. That was worked until a recent
+  change in InnoDB after which it went into infinite recursion if update of
+  the used index wasn't properly detected.
+  
+  The fix consists of 'used key being updated' detection code from 5.1.
+  
+  Patch done by Evgeny Potemkin <evgeny.potemkin@oracle.com>
+  and transferred into the 5.5.25a release build by Joerg Bruehe.
+  
+  This changeset is the difference between MySQL 5.5.25 and 5.5.25a.
+------------------------------------------------------------
+revno: 3820 [merge]
+tags: clone-5.5.25-build, mysql-5.5.25
+committer: Annamalai Gurusami <annamalai.gurusami@oracle.com>
+branch nick: mysql-5.5
+timestamp: Thu 2012-05-10 10:33:16 +0530
+message:
+  Merging from mysql-5.1 to mysql-5.5. 
+    ------------------------------------------------------------
+    revno: 2661.810.8
+    committer: Annamalai Gurusami <annamalai.gurusami@oracle.com>
+    branch nick: mysql-5.1
+    timestamp: Thu 2012-05-10 10:18:31 +0530
+    message:
+      Bug #14007649 65111: INNODB SOMETIMES FAILS TO UPDATE ROWS INSERTED 
+      BY A CONCURRENT TRANSACTIO
+      
+      The member function QUICK_RANGE_SELECT::init_ror_merged_scan() performs
+      a table handler clone. Innodb does not provide a clone operation.  
+      The ha_innobase::clone() is not there. The handler::clone() does not 
+      take care of the ha_innobase->prebuilt->select_lock_type.  Because of 
+      this what happens is that for one index we do a locking read, and 
+      for the other index we were doing a non-locking (consistent) read. 
+      The patch introduces ha_innobase::clone() member function.  
+      It is implemented similar to ha_myisam::clone().  It calls the 
+      base class handler::clone() and then does any additional operation 
+      required.  I am setting the ha_innobase->prebuilt->select_lock_type 
+      correctly. 
+      
+      rb://1060 approved by Marko
