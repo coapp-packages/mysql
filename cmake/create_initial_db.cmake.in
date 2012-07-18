@@ -19,6 +19,7 @@ SET(CMAKE_CURRENT_BINARY_DIR "@CMAKE_CURRENT_BINARY_DIR@")
 SET(MYSQLD_EXECUTABLE "@MYSQLD_EXECUTABLE@")
 SET(CMAKE_CFG_INTDIR "@CMAKE_CFG_INTDIR@")
 SET(WIN32 "@WIN32@")
+SET(COAPP "@COAPP@")
 # Force Visual Studio to output to stdout
 IF(ENV{VS_UNICODE_OUTPUT})
  SET ($ENV{VS_UNICODE_OUTPUT})
@@ -71,6 +72,19 @@ EXECUTE_PROCESS(
 EXECUTE_PROCESS (
   COMMAND "@CMAKE_COMMAND@" -E echo input file bootstrap.sql, current directory ${CWD}
 )
+
+IF(COAPP)
+  SET(ZLIB_ASSEMBLY
+    "zlib[$ENV{COMP}], Version=1.2.5.0, PublicKeyToken=1e373a58e25250cb, ProcessorArchitecture=$ENV{PLAT}"
+  )
+  SET(OPENSSL_ASSEMBLY
+    "openssl[$ENV{COMP}], Version=1.0.0.0, PublicKeyToken=1e373a58e25250cb, ProcessorArchitecture=$ENV{PLAT}"
+  )
+  EXECUTE_PROCESS (
+    COMMAND simplesigner.exe --reference-assembly=${ZLIB_ASSEMBLY} --reference-assembly=${OPENSSL_ASSEMBLY} ${MYSQLD_EXECUTABLE}
+  )
+ENDIF()
+
 EXECUTE_PROCESS (  
   COMMAND ${BOOTSTRAP_COMMAND}  INPUT_FILE bootstrap.sql OUTPUT_VARIABLE OUT
   ERROR_VARIABLE ERR

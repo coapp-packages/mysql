@@ -1,0 +1,137 @@
+@import "version.inc";
+
+#define {
+    NewVersion : "${package-version++}";
+}
+
+#product-info  {
+    product-name: "mysql";
+    version: "5.5.25";
+    original-source-website: "http://www.cmake.org/cmake/resources/software.html";
+    license: "GPL";
+    packager: "Tim Rogers";
+}
+
+test {
+    set: {
+        COMP="${COMP??vc10}";
+        PLAT="${PLAT??x86, x64}";
+    };
+    uses: release;
+    build-command: @"
+        for %%A in (${COMP}) do (
+            for %%B in (${PLAT}) do (
+                pushd output\${COMP}\${PLAT}
+                
+                pushd unittest\mysys
+                for /F %%E in ('dir /b *.exe') do (
+                    echo Starting test: %%E
+                    %%E >nul || (echo Test %%E FAILED!!  & goto failed )
+                )
+                popd
+                
+                popd
+            )
+        )
+    ";
+}
+
+package {
+    set: {
+        COMP="${COMP??vc10}";
+        PLAT="${PLAT??x86, x64}";
+    };
+    uses: {
+        update-version,
+        release
+    };
+    build-command: @"
+        pushd COPKG
+        for %%A in (${COMP}) do (
+            for %%B in (${PLAT}) do (
+                autopackage --comp=%%A --plat=%%B cmake.autopkg  || goto failed
+            )
+        )
+        popd
+    ";
+	clean-command: @"del COPKG\*.msi COPKG\*.wixpdb";
+}
+
+update-version {
+    build-command : @"
+        REM auto-increment version.inc file...
+        if ""${noversion}"" == ""true"" goto :endver
+        pushd COPKG
+        setlocal EnableDelayedExpansion
+        set VERSTRING=#define { package-version: ${NewVersion}; }
+        echo !VERSTRING! > version.inc
+        popd
+        :endver
+    ";
+}
+
+release {
+    set: {
+        BldConf="${BldConf??Release}";
+        COMP="${COMP??vc10}";
+		PLAT="${PLAT??x86, x64}";
+        BUILT="${BUILT??false}";
+	};
+    build-command: @"
+        if ""${BUILT}"" equ ""true"" goto endrel
+        for %%A in (${COMP}) do (
+            for %%B in (${PLAT}) do (
+                ptk --nologo --COMP=%%A --PLAT=%%B base || goto failed
+            )
+        )
+        :endrel
+    ";
+    clean-command: @"
+        for %%A in (${COMP}) do (
+            for %%B in (${PLAT}) do (
+                ptk --nologo --COMP=%%A --PLAT=%%B clean base
+            )
+        )
+    ";
+};
+
+base {
+    set: {
+        COMP="${COMP??vc10}";
+        PLAT="${PLAT??x86}";
+        BldConf="${BldConf??Debug}";
+    };
+    
+    compiler: "${COMP}";
+    platform: "${PLAT}";
+    
+    targets: {
+    };
+    
+    requires: {
+        @"cmake-2.8-1e373a58e25250cb",
+        @"zlib-dev[${COMP}]-1.2.5-${PLAT}-1e373a58e25250cb",
+        @"openssl-dev[${COMP}]-1.0.0-${PLAT}-1e373a58e25250cb",
+    };
+    
+    build-command: @"
+        REM Add coapp packages to the dev paths...
+        set INCLUDE=%INCLUDE%;%ProgramData%\include;
+        set LIB=%LIB%;%ProgramData%\lib\${PLAT};
+        set LIBPATH=%LIBPATH%;%ProgramData%\lib\${PLAT};
+        
+        mkdir output\${COMP}\${PLAT}
+        pushd output\${COMP}\${PLAT}
+
+        REM this define will need to be added after we have a libarchive package (which requires cmake to build)
+        REM -DCMAKE_USE_SYSTEM_LIBARCHIVE:BOOL=ON/OFF
+        cmake -DCMAKE_BUILD_TYPE:STRING=${BldConf} -DCMAKE_USE_RELATIVE_PATHS:BOOL=ON -DWITH_SSL:STRING=system -DWITH_ZLIB:STRING=system -DCOAPP:BOOL=ON -DMYSQL_DATADIR:PATH='%ProgramData%\etc\MySQL5.5\data' -DOPENSSL_INCLUDE_DIR:PATH='%ProgramData%\include\' -DSSL_EAY_RELEASE:FILEPATH='%ProgramData%\lib\${PLAT}\ssleay32.lib' -DLIB_EAY_RELEASE:FILEPATH='%ProgramData%\lib\${PLAT}\libeay32.lib' -DCRYPTO_LIBRARY:FILEPATH='%ProgramData%\lib\${PLAT}\libeay32.lib' -G ""NMake Makefiles"" ..\..\.. || goto failed
+
+        nmake || goto failed
+    ";
+    
+    clean-command: @"
+        rd /s /q output\${COMP}\${PLAT}
+    ";
+}
+
