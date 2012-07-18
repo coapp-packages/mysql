@@ -21,8 +21,8 @@ test {
     build-command: @"
         for %%A in (${COMP}) do (
             for %%B in (${PLAT}) do (
-                pushd output\${COMP}\${PLAT}
-                
+                pushd output\%%A\%%B
+                echo Testing %%A-%%B...
                 pushd unittest\mysys
                 for /F %%E in ('dir /b *.exe') do (
                     echo Starting test: %%E
@@ -125,11 +125,11 @@ base {
 
         REM this define will need to be added after we have a libarchive package (which requires cmake to build)
         REM -DCMAKE_USE_SYSTEM_LIBARCHIVE:BOOL=ON/OFF
-        cmake -DCMAKE_BUILD_TYPE:STRING=${BldConf} -DCMAKE_USE_RELATIVE_PATHS:BOOL=ON -DWITH_SSL:STRING=system -DWITH_ZLIB:STRING=system -DCOAPP:BOOL=ON -DMYSQL_DATADIR:PATH='%ProgramData%\etc\MySQL5.5\data' -DOPENSSL_INCLUDE_DIR:PATH='%ProgramData%\include\' -DSSL_EAY_RELEASE:FILEPATH='%ProgramData%\lib\${PLAT}\ssleay32.lib' -DLIB_EAY_RELEASE:FILEPATH='%ProgramData%\lib\${PLAT}\libeay32.lib' -DCRYPTO_LIBRARY:FILEPATH='%ProgramData%\lib\${PLAT}\libeay32.lib' -G ""NMake Makefiles"" ..\..\.. || goto failed
+        cmake -DCMAKE_BUILD_TYPE:STRING=${BldConf} -DWITH_EMBEDDED_SERVER:BOOL=ON -DWITH_ARCHIVE_STORAGE_ENGINE:BOOL=ON -DWITH_BLACKHOLE_STORAGE_ENGINE:BOOL=ON -DWITH_FEDERATED_STORAGE_ENGINE:BOOL=ON -DWITH_INNOBASE_STORAGE_ENGINE:BOOL=ON -DWITH_PARTITION_STORAGE_ENGINE:BOOL=ON -DCMAKE_USE_RELATIVE_PATHS:BOOL=ON -DWITH_SSL:STRING=system -DWITH_ZLIB:STRING=system -DCOAPP:BOOL=ON -DMYSQL_DATADIR:PATH='%ProgramData%\etc\MySQL5.5\data' -DZLIB_INCLUDE_DIR:PATH='%ProgramData%\include\zlib\' -DZLIB_LIBRARY:FILEPATH='%ProgramData%\lib\${PLAT}\zlib.lib' -DOPENSSL_INCLUDE_DIR:PATH='%ProgramData%\include\' -DSSL_EAY_RELEASE:FILEPATH='%ProgramData%\lib\${PLAT}\ssleay32.lib' -DLIB_EAY_RELEASE:FILEPATH='%ProgramData%\lib\${PLAT}\libeay32.lib' -DCRYPTO_LIBRARY:FILEPATH='%ProgramData%\lib\${PLAT}\libeay32.lib' -G ""NMake Makefiles"" ..\..\.. || goto failed
 
         nmake || goto failed
     ";
-    
+
     clean-command: @"
         rd /s /q output\${COMP}\${PLAT}
     ";

@@ -1,0 +1,279 @@
+@import "version.inc";
+@import "mysql.inc" ;
+@import "outercurve.inc";
+
+#define { 
+    flavor: "${comp??vc10}"; 
+    arch : "${plat??x86}";
+}
+
+package {
+    name: "mysql";
+    version: "${package-version}";
+    arch : "${arch}";
+
+    display-name: "mysql";
+    location: "http://coapp.org/repository/${OutputFilename}";
+
+    feed: "http://coapp.org/repository/packages.atom.xml";
+    publisher: "CoApp Project";
+}
+
+license[GPL] {
+    license-type: "GPL2";
+	license-url: "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html";
+	license: @"..\COPYING";
+}
+
+requires {
+    package: @"zlib[${flavor}]-1.2.5-${Package.Architecture}-1e373a58e25250cb";
+    package: @"openssl[${flavor}]-1.0.0-${Package.Architecture}-1e373a58e25250cb";
+}
+
+metadata {  
+    summary: "MySQL - open source database"; // or a more user-friendly name
+    description: @"MySQL - The world's most popular open source database.";
+    author-version : "${author-version}"; // may contain alphanumeric characters, not limited to 4-part version
+    bug-tracker: "https://github.com/coapp-packages/mysql/issues";
+    stability : "0"; // -100 to 100, 0 is considered "normal"/stable, higher is more stable
+    licenses : {
+        GPL
+    };
+}
+
+signing {
+    attributes : {
+        company="Outercurve Foundation",
+        description="mysql Compression Program",
+        product-name="mysql",
+        product-version="${package-version}",
+        file-version="${package-version}",
+    };
+
+    replace-signature: true; 
+    include: { 
+        exes
+    };    
+}
+
+application {
+    include : {
+        exes,
+        docs,
+        mods,
+        templates,
+    };
+}
+
+package-composition {
+    shortcuts : { 
+        exes => @"${bin}\${each.NameWithoutExtension}.lnk" = @"${packagedir}\${each.Name}";
+    };
+}
+
+/* bin Directory */
+files[exes] {
+    root: @"..\output\${flavor}\${arch}";
+
+    include: {
+        "client\*.exe",
+        "extra\*.exe",
+        "sql\*.exe",
+        "storage\myisam\*.exe",
+        "tests\*.exe",
+    };
+
+    trim-path: all;
+    destination: @".\bin";
+};
+
+/*
+files[docs] {
+    root: @"..\output\${flavor}\${arch}\Docs";
+
+    include: {
+        "**",
+    };
+
+    trim-path: minimal;
+    destination: @".\doc";
+};
+
+files[mods] {
+    root: @"..\Modules";
+
+    include: {
+        "**",
+    };
+
+    trim-path: minimal;
+    destination: @".\Modules";
+};
+
+files[templates] {
+    root: @"..\Templates";
+
+    include: {
+        "**",
+    };
+
+    trim-path: minimal;
+    destination: @".\Templates";
+};
+*/
+
+/* share Directory */
+files[share-charset] {
+    root: @"..\sql\share\charsets";
+
+    include: {
+        "**",
+    };
+
+    trim-path: minimal;
+    destination: @".\share\charsets";
+};
+
+files[static-share] {
+    root: @"..\sql\share";
+
+    include: {
+        "errmsg-utf8.txt",
+    };
+
+    trim-path: minimal;
+    destination: @".\share";
+};
+
+files[static-share-script] {
+    root: @"..\scripts";
+
+    include: {
+        "*.sql",
+    };
+
+    trim-path: minimal;
+    destination: @".\share";
+};
+
+files[share-langs] {
+    root: @"..\output\${flavor}\${arch}\sql\share";
+
+    include: {
+        "**",
+    };
+
+    trim-path: minimal;
+    destination: @".\share";
+};
+
+/* sql-bench Directory */
+files[sql-bench] {
+    root: @"..\output\${flavor}\${arch}\sql-bench";
+
+    include: {
+        "*.pl",
+        "*.bat",
+        "README"
+    };
+
+    trim-path: minimal;
+    destination: @".\sql-bench";
+};
+
+files[static-sql-bench-data] {
+    root: @"..\sql-bench\data";
+
+    include: {
+        "**",
+    };
+
+    trim-path: minimal;
+    destination: @".\sql-bench\data";
+};
+
+files[static-sql-bench-limits] {
+    root: @"..\sql-bench\limits";
+
+    include: {
+        "**",
+    };
+
+    trim-path: minimal;
+    destination: @".\sql-bench\limits";
+};
+
+/* scripts Directory */
+files[scripts] {
+    root: @"..\output\${flavor}\${arch}\scripts";
+
+    include: {
+        "mysql_install_db.pl",
+    };
+
+    trim-path: minimal;
+    destination: @".\scripts";
+};
+
+/* mysql-test Directory */
+files[test-lib-SafeProcess] {
+    root: @"..\output\${flavor}\${arch}\mysql-test\lib\My\SafeProcess";
+
+    include: {
+        "my_safe_kill.*",
+        "my_safe_process.*",
+    };
+
+    trim-path: minimal;
+    destination: @".\mysql-test\lib\My\SafeProcess";
+};
+
+files[static-test-lib] {
+    root: @"..\mysql-test\lib";
+
+    include: {
+        "My\SafeProcess\base.pm",
+        "My\SafeProcess\safe_process.pl",
+        "My\File\Path.pm",
+        "My\*.pm",
+        "v1\**",
+        "*",
+    };
+
+    trim-path: minimal;
+    destination: @".\mysql-test\lib";
+};
+
+files[static-test] {
+    root: @"..\mysql-test";
+
+    include: {
+        "collections\**",
+        "extra\**",
+        "include\**",
+        "r\**",
+        "std_data\**",
+        "suite\**",
+        "t\**",
+        "README*",
+        "*.supp",
+        "*.pl",
+    };
+
+    trim-path: minimal;
+    destination: @".\mysql-test";
+};
+
+/* data Directory */
+files[static-data] {
+    root: @"..\output\${flavor}\${arch}\sql\data";
+
+    include: {
+        "**",
+    };
+
+    trim-path: minimal;
+    destination: @".\data";
+};
+
+
