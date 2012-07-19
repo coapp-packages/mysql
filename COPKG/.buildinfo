@@ -82,6 +82,7 @@ prepack {
                 copy /y *.h ..\..\..\include\
                 del ..\..\..\include\config.h
                 ren ..\..\..\include\my_config.h my_config_%%B.h
+                popd
             )
         )
         popd

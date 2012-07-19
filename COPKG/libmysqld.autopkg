@@ -8,7 +8,7 @@
 }
 
 package {
-    name: "libmysqld";
+    name: "libmysqld[${flavor}]";
     version: "${package-version}";
     arch : "${arch}";
 
@@ -71,6 +71,7 @@ signing {
 assembly[libmysqld[${flavor}]] {
     include: {
         dll,
+        pdb,
     };
 }
 
@@ -79,6 +80,15 @@ files[dll] {
 
     include: {
         "libmysqld.dll",
+    };
+
+    trim-path: all;
+};
+
+files[pdb] {
+    root: @"..\output\${flavor}\${arch}\libmysqld";
+
+    include: {
         "libmysqld.pdb",
     };
 
