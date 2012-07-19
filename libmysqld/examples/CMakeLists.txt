@@ -25,14 +25,17 @@ ADD_DEFINITIONS(-DEMBEDDED_LIBRARY -UMYSQL_CLIENT)
 
 MYSQL_ADD_EXECUTABLE(mysql_embedded ../../client/completion_hash.cc
                ../../client/mysql.cc ../../client/readline.cc)
-TARGET_LINK_LIBRARIES(mysql_embedded mysqlserver)
+TARGET_LINK_LIBRARIES(mysql_embedded mysqlserver ${SSL_LIBRARIES})
 IF(UNIX)
   ADD_DEFINITIONS(${READLINE_DEFINES})
   TARGET_LINK_LIBRARIES(mysql_embedded ${READLINE_LIBRARY})
 ENDIF(UNIX)
+SET_TARGET_PROPERTIES(mysql_embedded PROPERTIES  LINK_FLAGS "/NODEFAULTLIB:msvcrt.lib")
+
 
 MYSQL_ADD_EXECUTABLE(mysqltest_embedded ../../client/mysqltest.cc)
-TARGET_LINK_LIBRARIES(mysqltest_embedded mysqlserver)
+TARGET_LINK_LIBRARIES(mysqltest_embedded mysqlserver ${SSL_LIBRARIES})
+SET_TARGET_PROPERTIES(mysqltest_embedded PROPERTIES  LINK_FLAGS "/NODEFAULTLIB:msvcrt.lib")
 
 
 IF(CMAKE_GENERATOR MATCHES "Xcode")
@@ -49,9 +52,9 @@ IF(CMAKE_GENERATOR MATCHES "Xcode")
     ../../tests/mysql_client_test.c)
 ELSE()
   MYSQL_ADD_EXECUTABLE(mysql_client_test_embedded ../../tests/mysql_client_test.c)
-  SET_TARGET_PROPERTIES(mysql_client_test_embedded  PROPERTIES HAS_CXX TRUE)
+  SET_TARGET_PROPERTIES(mysql_client_test_embedded  PROPERTIES HAS_CXX TRUE LINK_FLAGS "/NODEFAULTLIB:msvcrt.lib")
 ENDIF()
-TARGET_LINK_LIBRARIES(mysql_client_test_embedded mysqlserver)
+TARGET_LINK_LIBRARIES(mysql_client_test_embedded mysqlserver ${SSL_LIBRARIES})
 
 IF(UNIX)
 SET_TARGET_PROPERTIES(mysql_embedded PROPERTIES ENABLE_EXPORTS TRUE)

@@ -32,6 +32,7 @@ TARGET_LINK_LIBRARIES(mysql mysqlclient ${SSL_LIBRARIES})
 IF(UNIX)
   TARGET_LINK_LIBRARIES(mysql ${READLINE_LIBRARY})
 ENDIF(UNIX)
+SET_TARGET_PROPERTIES(mysql PROPERTIES  LINK_FLAGS "/NODEFAULTLIB:LIBCMT.lib")
 
 MYSQL_ADD_EXECUTABLE(mysqltest mysqltest.cc COMPONENT Test)
 SET_SOURCE_FILES_PROPERTIES(mysqltest.cc PROPERTIES COMPILE_FLAGS "-DTHREADS")
@@ -73,7 +74,20 @@ IF(WIN32)
 ENDIF(WIN32)
 
 SET_TARGET_PROPERTIES (mysqlcheck mysqldump mysqlimport mysql_upgrade mysqlshow mysqlslap mysql_plugin 
-PROPERTIES HAS_CXX TRUE)
+PROPERTIES HAS_CXX TRUE )
+SET_TARGET_PROPERTIES (
+mysqltest
+mysqladmin
+mysqlbinlog
+mysqlcheck 
+mysqldump 
+mysqlimport 
+#mysql_upgrade 
+mysqlshow 
+mysqlslap 
+#mysql_plugin 
+PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMT.lib"
+)
 
 ADD_DEFINITIONS(-DHAVE_DLOPEN)
 
