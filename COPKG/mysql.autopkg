@@ -41,10 +41,22 @@ metadata {
     };
 }
 
+manifest[things-that-need-them] {
+    
+    assembly : {
+        "zlib[${flavor}]",
+        "openssl[${flavor}]",
+    };
+    
+    include : { 
+        exes,
+    };
+}
+
 signing {
     attributes : {
         company="Outercurve Foundation",
-        description="mysql Compression Program",
+        description="mysql",
         product-name="mysql",
         product-version="${package-version}",
         file-version="${package-version}",
@@ -60,14 +72,29 @@ application {
     include : {
         exes,
         docs,
-        mods,
-        templates,
+        inis,
+        misc,
+        share-charset,
+        static-share,
+        static-share-script,
+        share-langs,
+        sql-bench,
+        static-sql-bench-data,
+        static-sql-bench-limits,
+        scripts,
+        test-lib-SafeProcess,
+        static-test-lib,
+        static-test,
+        static-data,
     };
 }
 
 package-composition {
-    shortcuts : { 
-        exes => @"${bin}\${each.NameWithoutExtension}.lnk" = @"${packagedir}\${each.Name}";
+    symlinks : { 
+        exes => @"${bin}\${each.Name}" = @"${packagedir}\bin\${each.Name}";
+    };
+    file-copy: {
+        inis => "${etc}\MySQL5.5\${each.Name}";
     };
 }
 
@@ -81,13 +108,18 @@ files[exes] {
         "sql\*.exe",
         "storage\myisam\*.exe",
         "tests\*.exe",
+        "client\*.pdb",
+        "extra\*.pdb",
+        "sql\*.pdb",
+        "storage\myisam\*.pdb",
+        "tests\*.pdb",
     };
 
     trim-path: all;
     destination: @".\bin";
 };
 
-/*
+/* docs Directory */
 files[docs] {
     root: @"..\output\${flavor}\${arch}\Docs";
 
@@ -96,31 +128,33 @@ files[docs] {
     };
 
     trim-path: minimal;
-    destination: @".\doc";
+    destination: @".\docs";
 };
 
-files[mods] {
-    root: @"..\Modules";
+/* ini files */
+files[inis] {
+    root: @"..\output\${flavor}\${arch}\support-files";
 
     include: {
-        "**",
+        "*.ini",
     };
 
-    trim-path: minimal;
-    destination: @".\Modules";
+    trim-path: all;
+    destination: @".\conf";
 };
 
-files[templates] {
-    root: @"..\Templates";
+/* misc files */
+files[misc] {
+    root: @"..";
 
     include: {
-        "**",
+        "COPYING",
+        "README",
     };
 
-    trim-path: minimal;
-    destination: @".\Templates";
+    trim-path: all;
+    destination: @".\";
 };
-*/
 
 /* share Directory */
 files[share-charset] {
@@ -141,7 +175,7 @@ files[static-share] {
         "errmsg-utf8.txt",
     };
 
-    trim-path: minimal;
+    trim-path: all;
     destination: @".\share";
 };
 
@@ -152,7 +186,7 @@ files[static-share-script] {
         "*.sql",
     };
 
-    trim-path: minimal;
+    trim-path: all;
     destination: @".\share";
 };
 
@@ -177,7 +211,7 @@ files[sql-bench] {
         "README"
     };
 
-    trim-path: minimal;
+    trim-path: all;
     destination: @".\sql-bench";
 };
 
@@ -208,10 +242,10 @@ files[scripts] {
     root: @"..\output\${flavor}\${arch}\scripts";
 
     include: {
-        "mysql_install_db.pl",
+        "*.pl",
     };
 
-    trim-path: minimal;
+    trim-path: all;
     destination: @".\scripts";
 };
 
@@ -224,7 +258,7 @@ files[test-lib-SafeProcess] {
         "my_safe_process.*",
     };
 
-    trim-path: minimal;
+    trim-path: all;
     destination: @".\mysql-test\lib\My\SafeProcess";
 };
 

@@ -1,0 +1,88 @@
+@import "version.inc";
+@import "mysql.inc" ;
+@import "outercurve.inc";
+
+#define { 
+    flavor: "${comp??vc10}"; 
+    arch : "${plat??x86}";
+}
+
+package {
+    name: "libmysql";
+    version: "${package-version}";
+    arch : "${arch}";
+
+    display-name: "libmysql";
+    location: "http://coapp.org/repository/${OutputFilename}";
+
+    feed: "http://coapp.org/repository/packages.atom.xml";
+    publisher: "CoApp Project";
+}
+
+license[GPL] {
+    license-type: "GPL2";
+	license-url: "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html";
+	license: @"..\COPYING";
+}
+
+requires {
+    package: @"zlib[${flavor}]-1.2.5-${Package.Architecture}-1e373a58e25250cb";
+    package: @"openssl[${flavor}]-1.0.0-${Package.Architecture}-1e373a58e25250cb";
+}
+
+metadata {  
+    summary: "libmysql - MySQL Connector/C"; // or a more user-friendly name
+    description: @"MySQL Connector/C is a C client library for client/server communication.";
+    author-version : "${author-version}"; // may contain alphanumeric characters, not limited to 4-part version
+    bug-tracker: "https://github.com/coapp-packages/mysql/issues";
+    stability : "0"; // -100 to 100, 0 is considered "normal"/stable, higher is more stable
+    licenses : {
+        GPL
+    };
+}
+
+manifest[things-that-need-them] {
+    
+    assembly : {
+        "zlib[${flavor}]",
+        "openssl[${flavor}]",
+    };
+    
+    include : { 
+        dll,
+    };
+}
+
+signing {
+    attributes : {
+        company="Outercurve Foundation",
+        description="libmysql",
+        product-name="libmysql",
+        product-version="${package-version}",
+        file-version="${package-version}",
+    };
+
+    replace-signature: true; 
+    include: { 
+        dll
+    };    
+}
+
+assembly[libmysql[${flavor}]] {
+    include: {
+        dll,
+    };
+}
+
+files[dll] {
+    root: @"..\output\${flavor}\${arch}\libmysql";
+
+    include: {
+        "libmysql.dll",
+        "libmysql.pdb",
+    };
+
+    trim-path: all;
+};
+
+

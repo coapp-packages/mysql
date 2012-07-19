@@ -1,0 +1,88 @@
+@import "version.inc";
+@import "mysql.inc" ;
+@import "outercurve.inc";
+
+#define { 
+    flavor: "${comp??vc10}"; 
+    arch : "${plat??x86}";
+}
+
+package {
+    name: "libmysqld";
+    version: "${package-version}";
+    arch : "${arch}";
+
+    display-name: "libmysqld";
+    location: "http://coapp.org/repository/${OutputFilename}";
+
+    feed: "http://coapp.org/repository/packages.atom.xml";
+    publisher: "CoApp Project";
+}
+
+license[GPL] {
+    license-type: "GPL2";
+	license-url: "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html";
+	license: @"..\COPYING";
+}
+
+requires {
+    package: @"zlib[${flavor}]-1.2.5-${Package.Architecture}-1e373a58e25250cb";
+    package: @"openssl[${flavor}]-1.0.0-${Package.Architecture}-1e373a58e25250cb";
+}
+
+metadata {  
+    summary: "libmysqld - MySQL Embedded"; // or a more user-friendly name
+    description: @"The embedded MySQL server library makes it possible to run a full-featured MySQL server inside a client application. The main benefits are increased speed and more simple management for embedded applications.";
+    author-version : "${author-version}"; // may contain alphanumeric characters, not limited to 4-part version
+    bug-tracker: "https://github.com/coapp-packages/mysql/issues";
+    stability : "0"; // -100 to 100, 0 is considered "normal"/stable, higher is more stable
+    licenses : {
+        GPL
+    };
+}
+
+manifest[things-that-need-them] {
+    
+    assembly : {
+        "zlib[${flavor}]",
+        "openssl[${flavor}]",
+    };
+    
+    include : { 
+        dll,
+    };
+}
+
+signing {
+    attributes : {
+        company="Outercurve Foundation",
+        description="libmysqld",
+        product-name="libmysqld",
+        product-version="${package-version}",
+        file-version="${package-version}",
+    };
+
+    replace-signature: true; 
+    include: { 
+        dll
+    };    
+}
+
+assembly[libmysqld[${flavor}]] {
+    include: {
+        dll,
+    };
+}
+
+files[dll] {
+    root: @"..\output\${flavor}\${arch}\libmysqld";
+
+    include: {
+        "libmysqld.dll",
+        "libmysqld.pdb",
+    };
+
+    trim-path: all;
+};
+
+

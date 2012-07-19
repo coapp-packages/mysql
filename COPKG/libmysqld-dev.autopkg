@@ -1,0 +1,61 @@
+@import "version.inc";
+@import "mysql.inc" ;
+@import "outercurve.inc";
+
+#define { 
+    flavor: "${comp??vc10}"; 
+    arch : "${plat??x86}";
+}
+
+package {
+    name: "libmysqld-dev";
+    version: "${package-version}";
+    arch : "${arch}";
+
+    display-name: "libmysqld-dev";
+    location: "http://coapp.org/repository/${OutputFilename}";
+
+    feed: "http://coapp.org/repository/packages.atom.xml";
+    publisher: "CoApp Project";
+}
+
+license[GPL] {
+    license-type: "GPL2";
+	license-url: "http://www.gnu.org/licenses/old-licenses/gpl-2.0.html";
+	license: @"..\COPYING";
+}
+
+requires {
+    package: @"libmysqld[${flavor}]-${package-version}-${Package.Architecture}-${Package.PublicKeyToken}";
+    package: @"mysql-dev-common-${package-version}-any-${Package.PublicKeyToken}";
+}
+
+metadata {  
+    summary: "libmysqld-dev "; // or a more user-friendly name
+    description: @"Developer libraries for libmysqld.";
+    author-version : "${author-version}"; // may contain alphanumeric characters, not limited to 4-part version
+    bug-tracker: "https://github.com/coapp-packages/mysql/issues";
+    stability : "0"; // -100 to 100, 0 is considered "normal"/stable, higher is more stable
+    licenses : {
+        GPL
+    };
+}
+
+developer-library[libmysqld[${flavor}]] {
+    include: {
+        lib,
+    };
+}
+
+files[lib] {
+    root: @"..\output\${flavor}\${arch}\libmysqld";
+
+    include: {
+        "*.lib.dll",
+        "*.pdb",
+    };
+
+    trim-path: all;
+};
+
+
