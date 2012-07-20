@@ -8,7 +8,7 @@
 }
 
 package {
-    name: "libmysqld-dev";
+    name: "libmysqld-dev[${flavor}]";
     version: "${package-version}";
     arch : "${arch}";
 
